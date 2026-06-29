@@ -1,27 +1,29 @@
 import {
-  MegaphoneIcon,
-  CalendarIcon,
-  QrIcon,
-  CalendarPlusIcon,
-  HandCoinIcon,
-  UserTieIcon,
-  ClipboardCheckIcon,
-  UsersIcon,
-} from "@/components/icons"
+  Megaphone,
+  Calendar,
+  QrCode,
+  CalendarPlus,
+  HandCoins,
+  IdCard,
+  ClipboardCheck,
+  Users,
+} from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 type QuickAction = {
   key: string
   label: string
-  Icon: (props: { className?: string }) => React.ReactElement
+  Icon: React.ComponentType<{ className?: string }>
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { key: "qr", label: "Imbas QR Kehadiran", Icon: QrIcon },
-  { key: "cuti", label: "Mohon Cuti", Icon: CalendarPlusIcon },
-  { key: "gaji", label: "Mohon Gaji Awal", Icon: HandCoinIcon },
-  { key: "maklumat", label: "Maklumat Saya", Icon: UserTieIcon },
-  { key: "status", label: "Status Permohonan", Icon: ClipboardCheckIcon },
-  { key: "nilai", label: "Nilai Rakan Sekerja", Icon: UsersIcon },
+  { key: "qr", label: "Imbas QR Kehadiran", Icon: QrCode },
+  { key: "cuti", label: "Mohon Cuti", Icon: CalendarPlus },
+  { key: "gaji", label: "Mohon Gaji Awal", Icon: HandCoins },
+  { key: "maklumat", label: "Maklumat Saya", Icon: IdCard },
+  { key: "status", label: "Status Permohonan", Icon: ClipboardCheck },
+  { key: "nilai", label: "Nilai Rakan Sekerja", Icon: Users },
 ]
 
 export default function HomePage() {
@@ -36,7 +38,7 @@ export default function HomePage() {
         {/* Decorative coffee cup */}
         <svg
           aria-hidden="true"
-          className="pointer-events-none absolute -right-2 top-1/2 hidden h-40 w-40 -translate-y-1/2 text-white/10 sm:block"
+          className="pointer-events-none absolute top-1/2 -right-2 hidden size-40 -translate-y-1/2 text-white/10 sm:block"
           viewBox="0 0 24 24"
           fill="currentColor"
         >
@@ -45,43 +47,38 @@ export default function HomePage() {
       </section>
 
       {/* Latest announcement */}
-      <section className="overflow-hidden rounded-xl border-l-4 border-orange-400 bg-white p-5 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-500">
-            <MegaphoneIcon className="h-6 w-6" />
+      <Card className="border-l-4 border-l-orange-400 p-0">
+        <CardContent className="flex items-start gap-4 p-5">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-500">
+            <Megaphone className="size-6" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wide text-orange-500">
+            <p className="text-xs font-bold tracking-wide text-orange-500 uppercase">
               Makluman Terkini
             </p>
-            <h3 className="mt-1 text-lg font-bold text-zinc-800">eso</h3>
-            <p className="mt-1 text-sm text-zinc-500">eso</p>
+            <h3 className="mt-1 text-lg font-bold">eso</h3>
+            <p className="mt-1 text-sm text-muted-foreground">eso</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-sm text-zinc-400">
-                <CalendarIcon className="h-4 w-4" />
+              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Calendar className="size-4" />
                 14/01/2026
               </span>
-              <button
-                type="button"
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
-              >
+              <Button variant="link" className="h-auto p-0 text-primary">
                 Baca Penuh
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {/* Quick actions */}
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {QUICK_ACTIONS.map(({ key, label, Icon }) => (
-          <button
-            key={key}
-            type="button"
-            className="flex flex-col items-center justify-center gap-4 rounded-xl bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <Icon className="h-9 w-9 text-indigo-600" />
-            <span className="text-sm font-semibold text-zinc-700">{label}</span>
+          <button key={key} type="button" className="text-left outline-none">
+            <Card className="items-center justify-center p-6 text-center transition-all hover:-translate-y-0.5 hover:shadow-md">
+              <Icon className="size-9 text-primary" />
+              <span className="text-sm font-semibold">{label}</span>
+            </Card>
           </button>
         ))}
       </section>

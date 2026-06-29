@@ -3,15 +3,25 @@
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import type { User } from "@supabase/supabase-js"
+import { IdCard, User as UserIcon, Cake, Users, UserPlus } from "lucide-react"
 import { supabase } from "@/lib/supabaseClient"
+import { Button } from "@/components/ui/button"
 import {
-  IdCardIcon,
-  UserIcon,
-  CakeIcon,
-  UsersGearIcon,
-  ChevronDownIcon,
-  UserPlusIcon,
-} from "@/components/icons"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -67,6 +77,11 @@ export default function RegisterPage() {
     event.preventDefault()
     if (!user) return
 
+    if (!role) {
+      setError("Sila pilih peranan anda.")
+      return
+    }
+
     setError(null)
     setSaving(true)
     const { error } = await supabase.from("profiles").insert({
@@ -89,111 +104,128 @@ export default function RegisterPage() {
   // Avoid flashing the form before the session check resolves.
   if (!user) {
     return (
-      <main className="flex flex-1 items-center justify-center bg-zinc-100 p-4">
-        <p className="text-sm text-zinc-400">Memuatkan…</p>
+      <main className="flex flex-1 items-center justify-center bg-muted p-4">
+        <p className="text-sm text-muted-foreground">Memuatkan…</p>
       </main>
     )
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-zinc-100 p-4">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl">
+    <main className="flex flex-1 items-center justify-center bg-muted p-4">
+      <Card className="w-full max-w-md gap-0 p-0">
         {/* Top accent bar */}
-        <div className="h-2 bg-indigo-600" />
+        <div className="h-2 bg-primary" />
 
-        <div className="px-8 py-10">
-          {/* Heading */}
-          <h1 className="text-center text-3xl font-bold text-indigo-600">
+        <CardHeader className="px-8 pt-10 text-center">
+          <CardTitle className="text-3xl font-bold text-primary">
             Daftar Akaun
-          </h1>
-          <p className="mt-2 text-center text-sm text-zinc-400">
+          </CardTitle>
+          <CardDescription className="mt-2">
             Selamat Datang pekerja baru Azuwa Cafe.
-          </p>
+          </CardDescription>
+        </CardHeader>
 
+        <CardContent className="px-8 pt-6 pb-10">
           {/* Google account this profile is tied to */}
-          <p className="mt-6 rounded-lg bg-zinc-50 px-4 py-2.5 text-center text-sm text-zinc-500">
+          <p className="rounded-lg bg-muted px-4 py-2.5 text-center text-sm text-muted-foreground">
             Akaun Google:{" "}
-            <span className="font-semibold text-zinc-700">{user.email}</span>
+            <span className="font-semibold text-foreground">{user.email}</span>
           </p>
 
           {error && (
-            <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-center text-sm text-red-600">
+            <p className="mt-4 rounded-lg bg-destructive/10 px-4 py-3 text-center text-sm text-destructive">
               {error}
             </p>
           )}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {/* Nama Penuh */}
-            <label className="flex items-center gap-3 rounded-xl border border-zinc-300 px-4 py-3.5 focus-within:ring-2 focus-within:ring-indigo-400">
-              <IdCardIcon className="h-5 w-5 shrink-0 text-indigo-500" />
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Nama Penuh"
-                className="w-full bg-transparent text-zinc-800 placeholder:text-zinc-400 focus:outline-none"
-              />
-            </label>
+            <div className="space-y-1.5">
+              <Label htmlFor="fullName">Nama Penuh</Label>
+              <div className="relative">
+                <IdCard className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="fullName"
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Nama Penuh"
+                  className="h-11 pl-9"
+                />
+              </div>
+            </div>
 
             {/* Nama Pengguna */}
-            <label className="flex items-center gap-3 rounded-xl border border-zinc-300 px-4 py-3.5 focus-within:ring-2 focus-within:ring-indigo-400">
-              <UserIcon className="h-5 w-5 shrink-0 text-indigo-500" />
-              <input
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Nama Pengguna"
-                className="w-full bg-transparent text-zinc-800 placeholder:text-zinc-400 focus:outline-none"
-              />
-            </label>
+            <div className="space-y-1.5">
+              <Label htmlFor="username">Nama Pengguna</Label>
+              <div className="relative">
+                <UserIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Nama Pengguna"
+                  className="h-11 pl-9"
+                />
+              </div>
+            </div>
 
             {/* Umur */}
-            <label className="flex items-center gap-3 rounded-xl border border-zinc-300 px-4 py-3.5 focus-within:ring-2 focus-within:ring-indigo-400">
-              <CakeIcon className="h-5 w-5 shrink-0 text-indigo-500" />
-              <input
-                type="number"
-                required
-                min={1}
-                max={120}
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder="Umur"
-                className="w-full bg-transparent text-zinc-800 placeholder:text-zinc-400 focus:outline-none"
-              />
-            </label>
+            <div className="space-y-1.5">
+              <Label htmlFor="age">Umur</Label>
+              <div className="relative">
+                <Cake className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="age"
+                  type="number"
+                  required
+                  min={1}
+                  max={120}
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  placeholder="Umur"
+                  className="h-11 pl-9"
+                />
+              </div>
+            </div>
 
             {/* Peranan */}
-            <div className="relative flex items-center rounded-xl ring-1 ring-indigo-400">
-              <UsersGearIcon className="pointer-events-none absolute left-4 h-5 w-5 text-indigo-500" />
-              <select
-                required
-                aria-label="Peranan"
+            <div className="space-y-1.5">
+              <Label>Peranan</Label>
+              <Select
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full appearance-none rounded-xl bg-white py-3.5 pl-12 pr-10 text-zinc-700 focus:outline-none"
+                onValueChange={(value) => setRole(value ?? "")}
               >
-                <option value="">-- Pilih Peranan --</option>
-                <option value="pekerja">Pekerja</option>
-                <option value="pengurus">Pengurus</option>
-                <option value="admin">Admin</option>
-              </select>
-              <ChevronDownIcon className="pointer-events-none absolute right-4 h-5 w-5 text-indigo-500" />
+                <SelectTrigger className="h-11 w-full">
+                  <div className="flex items-center gap-2">
+                    <Users className="size-4 text-muted-foreground" />
+                    <SelectValue placeholder="-- Pilih Peranan --" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pekerja">Pekerja</SelectItem>
+                  <SelectItem value="pengurus">Pengurus</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Submit */}
-            <button
+            <Button
               type="submit"
+              size="lg"
               disabled={saving}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 py-3.5 font-bold text-white shadow-sm transition-colors hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full gap-2 text-base font-bold"
             >
-              <UserPlusIcon className="h-5 w-5" />
+              <UserPlus className="size-5" />
               {saving ? "Menyimpan…" : "Daftar Akaun"}
-            </button>
+            </Button>
           </form>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </main>
   )
 }
