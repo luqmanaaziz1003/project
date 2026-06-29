@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabaseClient"
 import {
   DashboardIcon,
   UserIcon,
@@ -36,7 +38,13 @@ export default function DashboardShell({
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    router.replace("/")
+  }
   // Visual-only active state; navigation is not wired up yet.
   const [active, setActive] = useState("home")
 
@@ -88,6 +96,7 @@ export default function DashboardShell({
           <div className="border-t border-zinc-100 px-3 py-4">
             <button
               type="button"
+              onClick={handleLogout}
               className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
             >
               <LogoutIcon className="h-5 w-5 shrink-0" />
