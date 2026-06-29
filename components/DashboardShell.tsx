@@ -1,36 +1,48 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabaseClient"
+import { useEffect, useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import {
-  DashboardIcon,
-  UserIcon,
-  CalendarIcon,
-  MoneyIcon,
-  ListCheckIcon,
-  StarIcon,
-  SettingsIcon,
-  LogoutIcon,
-  MenuIcon,
-  QrIcon,
-  MedalIcon,
-} from "@/components/icons"
+  LayoutDashboard,
+  User,
+  Calendar,
+  Wallet,
+  ListChecks,
+  Star,
+  Settings,
+  LogOut,
+  PanelLeft,
+  Award,
+  QrCode,
+  Coffee,
+  ChevronsUpDown,
+} from "lucide-react"
+import { supabase } from "@/lib/supabaseClient"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
 
 type NavItem = {
   key: string
   label: string
-  Icon: (props: { className?: string }) => React.ReactElement
+  Icon: React.ComponentType<{ className?: string }>
+  href?: string
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { key: "home", label: "Halaman Utama", Icon: DashboardIcon },
-  { key: "pekerja", label: "Maklumat Pekerja", Icon: UserIcon },
-  { key: "cuti", label: "Mohon Cuti", Icon: CalendarIcon },
-  { key: "gaji", label: "Mohon Gaji Awal", Icon: MoneyIcon },
-  { key: "semak", label: "Semak Permohonan", Icon: ListCheckIcon },
-  { key: "nilai", label: "Nilai Rakan Sekerja", Icon: StarIcon },
-  { key: "tetapan", label: "Tetapan", Icon: SettingsIcon },
+  { key: "home", label: "Halaman Utama", Icon: LayoutDashboard, href: "/dashboard" },
+  { key: "pekerja", label: "Senarai Pekerja", Icon: User },
+  { key: "cuti", label: "Mohon Cuti", Icon: Calendar, href: "/cuti" },
+  { key: "gaji", label: "Mohon Gaji Awal", Icon: Wallet, href: "/gaji" },
+  { key: "semak", label: "Semak Permohonan", Icon: ListChecks },
+  { key: "nilai", label: "Nilai Rakan Sekerja", Icon: Star },
 ]
 
 export default function DashboardShell({
@@ -39,110 +51,192 @@ export default function DashboardShell({
   children: React.ReactNode
 }) {
   const router = useRouter()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false)
+  // Routed items reflect the URL; placeholder items use local highlight state.
+  const [active, setActive] = useState("home")
+  const [email, setEmail] = useState("")
+
+  // Keep the highlight in sync with the current route on navigation/refresh.
+  useEffect(() => {
+    const match = NAV_ITEMS.find(
+      (item) =>
+        item.href &&
+        (pathname === item.href || pathname.startsWith(`${item.href}/`))
+    )
+    if (match) setActive(match.key)
+  }, [pathname])
+
+  // Show the signed-in account's email in the profile menu.
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) setEmail(data.user.email)
+    })
+  }, [])
 
   async function handleLogout() {
     await supabase.auth.signOut()
     router.replace("/")
   }
-  // Visual-only active state; navigation is not wired up yet.
-  const [active, setActive] = useState("home")
 
   const activeLabel =
     NAV_ITEMS.find((item) => item.key === active)?.label ?? "Halaman Utama"
 
   return (
-    <div className="flex min-h-screen bg-zinc-50">
+    <div className="flex h-screen overflow-hidden bg-muted/40">
       {/* Sidebar */}
       <aside
-        className={`${
-          sidebarOpen ? "w-64" : "w-0"
-        } shrink-0 overflow-hidden border-r border-zinc-200 bg-white transition-[width] duration-300`}
+        className={cn(
+          "flex shrink-0 flex-col border-r bg-background transition-[width] duration-300",
+          collapsed ? "w-16" : "w-64"
+        )}
       >
-        <div className="flex h-full w-64 flex-col">
-          {/* Logo */}
-          <div className="px-6 py-7">
-            <span className="text-2xl font-semibold italic tracking-tight text-indigo-600">
-              azuwa cafe
+        {/* Brand */}
+        <div
+          className={cn(
+            "flex h-16 items-center px-3",
+            collapsed && "justify-center"
+          )}
+        >
+          {collapsed ? (
+            <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Coffee className="size-5" />
             </span>
-          </div>
+          ) : (
+            <div className="flex w-full items-center gap-2.5">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Coffee className="size-5" />
+              </span>
+              <div className="grid min-w-0 flex-1 text-left leading-tight">
+                <span className="truncate text-sm font-semibold">
+                  Azuwa Cafe
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  Sistem Pekerja
+                </span>
+              </div>
+              <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+            </div>
+          )}
+        </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-3">
-            <ul className="space-y-1">
-              {NAV_ITEMS.map(({ key, label, Icon }) => {
-                const isActive = key === active
-                return (
-                  <li key={key}>
-                    <button
-                      type="button"
-                      onClick={() => setActive(key)}
-                      className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-indigo-50 text-indigo-600"
-                          : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
-                      }`}
-                    >
-                      <Icon className="h-5 w-5 shrink-0" />
-                      <span>{label}</span>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          </nav>
+        {/* Navigation */}
+        <nav className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
+          <ul className="space-y-1">
+            {NAV_ITEMS.map(({ key, label, Icon, href }) => {
+              const isActive = key === active
+              return (
+                <li key={key}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setActive(key)
+                      if (href) router.push(href)
+                    }}
+                    title={collapsed ? label : undefined}
+                    className={cn(
+                      "h-11 w-full gap-3 text-sm font-medium",
+                      collapsed ? "justify-center px-0" : "justify-start px-3",
+                      isActive
+                        ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    <Icon className="size-5 shrink-0" />
+                    {!collapsed && <span>{label}</span>}
+                  </Button>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
 
-          {/* Logout */}
-          <div className="border-t border-zinc-100 px-3 py-4">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
-            >
-              <LogoutIcon className="h-5 w-5 shrink-0" />
-              <span>Log Keluar</span>
-            </button>
-          </div>
+        {/* Profile (bottom of sidebar) */}
+        <div className="border-t p-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  title={collapsed ? "luqman" : undefined}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-lg p-2 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50",
+                    collapsed ? "justify-center" : "justify-start"
+                  )}
+                >
+                  <Avatar size="lg">
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      L
+                    </AvatarFallback>
+                  </Avatar>
+                  {!collapsed && (
+                    <>
+                      <span className="min-w-0 flex-1 truncate text-left text-sm font-medium">
+                        luqman
+                      </span>
+                      <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+                    </>
+                  )}
+                </button>
+              }
+            />
+            <DropdownMenuContent side="top" align="start" className="w-60">
+              {/* Account header */}
+              <div className="flex items-center gap-2 px-1.5 py-1.5">
+                <Avatar size="lg">
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    L
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid min-w-0 flex-1 text-left">
+                  <span className="truncate text-sm font-medium">luqman</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {email || "—"}
+                  </span>
+                </div>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/profil")}>
+                <User className="size-4" />
+                Maklumat Saya
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="size-4" />
+                Tetapan
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                <LogOut className="size-4" />
+                Log Keluar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </aside>
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top bar */}
-        <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-4">
+        <header className="flex items-center justify-between border-b bg-background px-6 py-3">
           <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen((open) => !open)}
-              aria-label="Toggle menu"
-              className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCollapsed((value) => !value)}
+              aria-label="Toggle sidebar"
             >
-              <MenuIcon className="h-6 w-6" />
-            </button>
-            <h1 className="text-xl font-semibold text-zinc-800">{activeLabel}</h1>
+              <PanelLeft className="size-5" />
+            </Button>
+            <h1 className="text-xl font-semibold">{activeLabel}</h1>
           </div>
 
-          <div className="flex items-center gap-5">
-            <button
-              type="button"
-              aria-label="Pencapaian"
-              className="text-amber-400 transition-transform hover:scale-110"
-            >
-              <MedalIcon className="h-6 w-6" />
-            </button>
-            <button
-              type="button"
-              aria-label="Imbas QR"
-              className="text-zinc-500 transition-colors hover:text-zinc-700"
-            >
-              <QrIcon className="h-6 w-6" />
-            </button>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-zinc-700">luqman</span>
-              <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-semibold text-indigo-600 ring-2 ring-indigo-100">
-                L
-              </div>
-            </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" aria-label="Pencapaian">
+              <Award className="size-5 text-amber-400" />
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Imbas QR">
+              <QrCode className="size-5" />
+            </Button>
           </div>
         </header>
 

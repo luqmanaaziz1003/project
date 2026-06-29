@@ -3,8 +3,41 @@
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import type { User } from "@supabase/supabase-js"
+import { Star } from "lucide-react"
 import { supabase } from "@/lib/supabaseClient"
-import { GoogleIcon, StarIcon } from "@/components/icons"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+
+// Official multi-color Google "G" mark.
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.1V7.06H2.18A11 11 0 0 0 1 12c0 1.77.42 3.44 1.18 4.94l3.66-2.84z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"
+      />
+    </svg>
+  )
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -72,50 +105,59 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-zinc-100 p-4">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-xl">
+    <main className="flex flex-1 items-center justify-center bg-muted p-4">
+      <Card className="w-full max-w-md gap-0 p-0">
         {/* Top accent bar */}
-        <div className="h-2 bg-indigo-600" />
+        <div className="h-2 bg-primary" />
 
-        <div className="px-8 py-10">
-          {/* Branding */}
-          <h1 className="text-center text-4xl font-bold italic tracking-tight text-indigo-600">
+        <CardHeader className="px-8 pt-10 text-center">
+          <CardTitle className="text-4xl font-bold tracking-tight text-primary italic">
             azuwa cafe
-          </h1>
-          <p className="mt-3 text-center text-sm text-zinc-400">
+          </CardTitle>
+          <CardDescription className="mt-2">
             Log masuk dengan akaun Google anda untuk meneruskan.
-          </p>
+          </CardDescription>
+        </CardHeader>
 
+        <CardContent className="px-8 pt-6 pb-10">
           {error && (
-            <p className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-center text-sm text-red-600">
+            <p className="mb-6 rounded-lg bg-destructive/10 px-4 py-3 text-center text-sm text-destructive">
               {error}
             </p>
           )}
 
           {/* Google sign-in */}
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="lg"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="mt-8 flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-300 bg-white px-4 py-3.5 font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-12 w-full gap-3 text-base"
           >
-            <GoogleIcon className="h-5 w-5" />
+            <GoogleIcon className="size-5" />
             {loading ? "Menyambung…" : "Log Masuk dengan Google"}
-          </button>
+          </Button>
 
-          <hr className="my-6 border-zinc-100" />
+          <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+            <Separator className="flex-1" />
+          </div>
 
           {/* Customer rating */}
-          <p className="text-center text-sm text-zinc-500">Anda pelanggan kami?</p>
-          <button
+          <p className="text-center text-sm text-muted-foreground">
+            Anda pelanggan kami?
+          </p>
+          <Button
             type="button"
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-green-500 px-4 py-3 font-bold text-green-600 transition-colors hover:bg-green-50"
+            variant="outline"
+            size="lg"
+            className="mt-4 h-12 w-full gap-2 border-2 border-green-500 text-base font-bold text-green-600 hover:bg-green-50 hover:text-green-700"
           >
-            <StarIcon className="h-5 w-5" />
+            <Star className="size-5" />
             Penilaian Pekerja
-          </button>
-        </div>
-      </div>
+          </Button>
+        </CardContent>
+      </Card>
     </main>
   )
 }
